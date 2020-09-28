@@ -30,9 +30,9 @@ class GalleryService {
 		self.session = session
 	}
 	
-	func fetchPhotos(_ tag: String, completion: @escaping (Result<Photos, FetchError>) -> Void) {
+	func fetchPhotos(_ tag: String, page: Int, completion: @escaping (Result<Photos, FetchError>) -> Void) {
 		
-		let URLString = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)&text=\(tag)&per_page=20&format=json&nojsoncallback=1"
+		let URLString = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)&tags=\(tag)&page=\(page)&per_page=20&format=json&nojsoncallback=1"
 		
 		guard let api = URL(string: URLString) else {
 			return

@@ -12,10 +12,10 @@ private let reuseIdentifier = "PhotoCell"
 
 class GalleryViewController: UICollectionViewController {
 	
-	private let sectionInsets = UIEdgeInsets(top: 20.0,
-																					 left: 20.0,
-																					 bottom: 50.0,
-																					 right: 20.0)
+	private let sectionInsets = UIEdgeInsets(top: 16.0,
+																					 left: 16.0,
+																					 bottom: 0.0,
+																					 right: 16.0)
 	
 	private let itemsPerRow: CGFloat = 2
 	
@@ -24,14 +24,17 @@ class GalleryViewController: UICollectionViewController {
 	override func viewDidLoad() {
 		super.viewDidLoad()
 		
-		viewModel.loadGallery(tag: "cat")
-		
 		viewModel.searches.bind { [weak self] searches in
 			DispatchQueue.main.async {
 				self?.collectionView.reloadData()
 			}
 		}
 		
+		viewModel.tag.bind { [weak self] tag in
+			self?.viewModel.loadGallery(tag: tag)
+		}
+		
+		viewModel.tag.value = "cat"
 	}
 	
 	// MARK: UICollectionViewDataSource
@@ -56,6 +59,15 @@ class GalleryViewController: UICollectionViewController {
 		
 		return cell
 	}
+	
+	override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+
+		let index =  IndexPath(item: 10, section: viewModel.searches.value.count - 1)
+		if indexPath == index {
+			viewModel.loadGallery(tag: viewModel.tag.value)
+		}
+	}
+	
 }
 
 private extension GalleryViewController {
@@ -65,11 +77,9 @@ private extension GalleryViewController {
 }
 
 extension GalleryViewController : UICollectionViewDelegateFlowLayout {
-	//1
 	func collectionView(_ collectionView: UICollectionView,
 											layout collectionViewLayout: UICollectionViewLayout,
 											sizeForItemAt indexPath: IndexPath) -> CGSize {
-		//2
 		let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
 		let availableWidth = view.frame.width - paddingSpace
 		let widthPerItem = availableWidth / itemsPerRow
@@ -77,18 +87,15 @@ extension GalleryViewController : UICollectionViewDelegateFlowLayout {
 		return CGSize(width: widthPerItem, height: widthPerItem)
 	}
 	
-	//3
 	func collectionView(_ collectionView: UICollectionView,
 											layout collectionViewLayout: UICollectionViewLayout,
 											insetForSectionAt section: Int) -> UIEdgeInsets {
 		return sectionInsets
 	}
 	
-	// 4
 	func collectionView(_ collectionView: UICollectionView,
 											layout collectionViewLayout: UICollectionViewLayout,
 											minimumLineSpacingForSectionAt section: Int) -> CGFloat {
 		return sectionInsets.left
 	}
 }
-
