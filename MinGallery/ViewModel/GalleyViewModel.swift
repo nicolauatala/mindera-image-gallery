@@ -24,10 +24,26 @@ class GalleryViewModel {
 			case .success(let photos):
 				self.searches.value += [photos]
 				self.page += 1
-				print(self.searches.value.count)
 			case .failure(let error):
 				print(error.localizedDescription)
 			}
 		}
+	}
+	
+	func getSquareImage(id: String, completion: @escaping(URL) -> Void) -> Void? {
+		service.sizesURLs(id) { result in
+			switch result {
+			case .success(let sizes):
+				if let index = sizes.firstIndex(where: { $0.label == "Large Square" }) {
+					guard let urlImageLargeSquare = URL(string: sizes[index].source) else {
+						return
+					}
+					completion(urlImageLargeSquare)
+				}
+			case .failure(let error):
+				print(error.localizedDescription)
+			}
+		}
+		return nil
 	}
 }

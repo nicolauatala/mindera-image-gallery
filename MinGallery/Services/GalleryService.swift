@@ -8,8 +8,6 @@
 
 import Foundation
 
-let apiKey = "f9cc014fa76b098f9e82f1c288379ea1"
-
 enum FetchError: Error {
 	case invalidRequest
 	case noData
@@ -30,11 +28,9 @@ class GalleryService {
 		self.session = session
 	}
 	
-	func fetchPhotos(_ tag: String, page: Int, completion: @escaping (Result<Photos, FetchError>) -> Void) {
+	private func get<T: Decodable>(_ url: String, completion: @escaping (Result<T, FetchError>) -> Void) {
 		
-		let URLString = "https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=\(apiKey)&tags=\(tag)&page=\(page)&per_page=20&format=json&nojsoncallback=1"
-		
-		guard let api = URL(string: URLString) else {
+		guard let api = URL(string: url) else {
 			return
 		}
 		
@@ -60,14 +56,38 @@ class GalleryService {
 			
 			do {
 				let decoder = JSONDecoder()
-				let decoded = try decoder.decode(FlickrResponse.self, from: jsonData)
+				let decoded = try decoder.decode(T.self, from: jsonData)
 				
-				completion(.success(decoded.photos))
+				completion(.success(decoded))
 			} catch {
 				completion(.failure(.invalidFormat))
 			}
 		}
 		
 		task.resume()
+	}
+
+	func fetchPhotos(_ tag: String, page: Int, completion: @escaping (Result<Photos, FetchError>) -> Void) {
+		let urlString = FlickrAPI.search(tag, page)
+		get(urlString.path) { (result: Result<FlickrResponse, FetchError>) in
+			switch result {
+			case .success(let response):
+				completion(.success(response.photos))
+			case .failure(let error):
+				completion(.failure(error))
+			}
+		}
+	}
+	
+	func sizesURLs(_ id: String, completion: @escaping (Result<[Size], FetchError>) -> Void) {
+		let urlString = FlickrAPI.sizes(id)
+		get(urlString.path) { (result: Result<SizesResponse, FetchError>) in
+			switch result {
+			case .success(let response):
+				completion(.success(response.sizes.size))
+			case .failure(let error):
+				completion(.failure(error))
+			}
+		}
 	}
 }

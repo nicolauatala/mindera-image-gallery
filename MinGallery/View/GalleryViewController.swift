@@ -53,7 +53,7 @@ class GalleryViewController: UICollectionViewController {
 		let flickrPhoto = photo(for: indexPath)
 		cell.backgroundColor = .clear
 		
-		if let imageURL = flickrPhoto.flickrImageURL() {
+		viewModel.getSquareImage(id: flickrPhoto.id) { imageURL in
 			cell.imageView?.load(url: imageURL)
 		}
 		
