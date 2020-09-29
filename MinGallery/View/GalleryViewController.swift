@@ -12,29 +12,42 @@ private let reuseIdentifier = "PhotoCell"
 
 class GalleryViewController: UICollectionViewController {
 	
-	private let sectionInsets = UIEdgeInsets(top: 16.0,
-																					 left: 16.0,
-																					 bottom: 0.0,
-																					 right: 16.0)
-	
+	private let sectionInsets = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 0.0, right: 16.0)
 	private let itemsPerRow: CGFloat = 2
+	
+	private let searchController = UISearchController(searchResultsController: nil)
 	
 	private let viewModel = GalleryViewModel()
 	
 	override func viewDidLoad() {
 		super.viewDidLoad()
+		setup()
+		bindProperties()
+	}
+	
+	private func setup() {
+		self.title = "Mingallery"
 		
+		searchController.searchBar.delegate = self
+		searchController.obscuresBackgroundDuringPresentation = false
+		searchController.searchBar.placeholder = "Search photos"
+		navigationItem.searchController = searchController
+		definesPresentationContext = false
+	}
+	
+	private func bindProperties() {
 		viewModel.searches.bind { [weak self] searches in
 			DispatchQueue.main.async {
+				if searches.count == 1 {
+					self?.collectionView.scrollToItem(at: IndexPath(item: 0, section: 0), at: .top, animated: false)
+				}
 				self?.collectionView.reloadData()
 			}
 		}
-		
-		viewModel.tag.bind { [weak self] tag in
-			self?.viewModel.loadGallery(tag: tag)
-		}
-		
-		viewModel.tag.value = "cat"
+	}
+	
+	func photo(for indexPath: IndexPath) -> Photo {
+		return viewModel.searches.value[indexPath.section].photo[indexPath.row]
 	}
 	
 	// MARK: UICollectionViewDataSource
@@ -70,9 +83,10 @@ class GalleryViewController: UICollectionViewController {
 	
 }
 
-private extension GalleryViewController {
-	func photo(for indexPath: IndexPath) -> Photo {
-		return viewModel.searches.value[indexPath.section].photo[indexPath.row]
+extension GalleryViewController: UISearchBarDelegate {
+	func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+		guard let searchText = searchBar.text else { return }
+		viewModel.loadGallery(tag: searchText)
 	}
 }
 

@@ -18,15 +18,26 @@ class GalleryViewModel {
 	init() {
 	}
 	
-	func loadGallery(tag: String) -> Void {
+	func loadGallery(tag: String) {
+		let newTag = self.tag.value != tag
+		self.tag.value = tag
 		service.fetchPhotos(tag, page: page) { result in
 			switch result {
 			case .success(let photos):
-				self.searches.value += [photos]
-				self.page += 1
+				self.manageSearchesResult(newTag: newTag, photos)
 			case .failure(let error):
 				print(error.localizedDescription)
 			}
+		}
+	}
+	
+	private func manageSearchesResult(newTag: Bool,_ photos: Photos) {
+		if newTag {
+			self.searches.value = [photos]
+			self.page = 1
+		} else {
+			self.searches.value += [photos]
+			self.page += 1
 		}
 	}
 	

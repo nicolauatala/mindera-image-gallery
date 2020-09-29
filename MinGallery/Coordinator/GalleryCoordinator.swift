@@ -19,7 +19,6 @@ class GalleryCoordinator: Coordinator {
 	func start() {
 		let storyboard = UIStoryboard(name: "Main", bundle: nil)
 		let galleryViewController = storyboard.instantiateViewController(identifier: "GalleryViewController")
-		self.navigationController.setNavigationBarHidden(true, animated: false)
 		self.navigationController.pushViewController(galleryViewController, animated: false)
 	}
 }
