@@ -9,7 +9,7 @@
 import UIKit
 
 class GalleryCoordinator: Coordinator {
-	private let navigationController: UINavigationController
+	internal let navigationController: UINavigationController
 	
 	internal init(navigationController: UINavigationController) {
 		self.navigationController = navigationController
