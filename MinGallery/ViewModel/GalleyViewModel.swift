@@ -8,11 +8,11 @@
 
 import Foundation
 
-class GalleryViewModel {
+class GalleryViewModel: GalleryViewModelProtocol {
 	
-	private let service = GalleryService()
+	internal let service = GalleryService()
+	internal var page = 1
 	var searches: Box<[Photos]> = Box([])
-	private var page = 1
 	var tag = Box("")
 	
 	init() {
@@ -41,7 +41,7 @@ class GalleryViewModel {
 		}
 	}
 	
-	func getSquareImage(id: String, completion: @escaping(URL) -> Void) -> Void? {
+	func getSquareImage(id: String, completion: @escaping(URL) -> Void) {
 		service.sizesURLs(id) { result in
 			switch result {
 			case .success(let sizes):
@@ -55,6 +55,5 @@ class GalleryViewModel {
 				print(error.localizedDescription)
 			}
 		}
-		return nil
 	}
 }
